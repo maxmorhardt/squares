@@ -69,7 +69,7 @@ export default function InviteManager({ open, onClose }: InviteManagerProps) {
         createContestInvite({
           contestId: currentContest.id,
           request: {
-            maxSquares,
+            maxSquares: role === 'viewer' ? 0 : maxSquares,
             role,
             maxUses: maxUses ? parseInt(maxUses, 10) : undefined,
             expiresIn: expiresIn ? parseInt(expiresIn, 10) : undefined,
@@ -150,20 +150,25 @@ export default function InviteManager({ open, onClose }: InviteManagerProps) {
             </Box>
           ) : (
             <Box>
-              <Typography
-                variant="caption"
-                sx={{ color: 'rgba(255,255,255,0.5)', display: 'block', mb: 0.5 }}
-              >
-                Max Squares Per Person: {maxSquares}
-              </Typography>
-              <Slider
-                value={maxSquares}
-                onChange={(_, val) => setMaxSquares(val as number)}
-                min={1}
-                max={100}
-                valueLabelDisplay="auto"
-                size="small"
-              />
+              {/* viewers never claim squares, so the limit slider only applies to participants */}
+              {role !== 'viewer' && (
+                <>
+                  <Typography
+                    variant="caption"
+                    sx={{ color: 'rgba(255,255,255,0.5)', display: 'block', mb: 0.5 }}
+                  >
+                    Max Squares Per Person: {maxSquares}
+                  </Typography>
+                  <Slider
+                    value={maxSquares}
+                    onChange={(_, val) => setMaxSquares(val as number)}
+                    min={1}
+                    max={100}
+                    valueLabelDisplay="auto"
+                    size="small"
+                  />
+                </>
+              )}
 
               <FormControl fullWidth size="small" sx={{ mt: 1 }}>
                 <InputLabel>Role</InputLabel>

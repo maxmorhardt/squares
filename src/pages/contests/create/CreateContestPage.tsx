@@ -265,7 +265,7 @@ export default function CreateContestPage() {
                 <Slider
                   value={maxSquares}
                   onChange={(_, val) => setMaxSquares(val as number)}
-                  min={1}
+                  min={0}
                   max={100}
                   step={1}
                   valueLabelDisplay="auto"
