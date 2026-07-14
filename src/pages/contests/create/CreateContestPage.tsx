@@ -229,7 +229,10 @@ export default function CreateContestPage() {
                   value={scoringMode}
                   exclusive
                   onChange={(_, val) => {
-                    if (val) setScoringMode(val as ScoringMode);
+                    if (val) {
+                      setScoringMode(val as ScoringMode);
+                      setError('');
+                    }
                   }}
                   fullWidth
                   size="small"
