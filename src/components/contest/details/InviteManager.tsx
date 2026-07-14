@@ -30,6 +30,7 @@ import {
 } from '../../../features/contests/contestThunks';
 import { useAppDispatch, useAppSelector } from '../../../hooks/reduxHooks';
 import { useToast } from '../../../hooks/useToast';
+import { isTerminalStatus } from '../../../utils/contestStatus';
 import type { ParticipantRole } from '../../../types/contest';
 
 interface InviteManagerProps {
@@ -52,7 +53,7 @@ export default function InviteManager({ open, onClose }: InviteManagerProps) {
   const [createError, setCreateError] = useState(false);
   const [failedInviteId, setFailedInviteId] = useState<string | null>(null);
 
-  const isTerminal = currentContest?.status === 'FINISHED' || currentContest?.status === 'DELETED';
+  const isTerminal = isTerminalStatus(currentContest?.status);
 
   useEffect(() => {
     if (open && currentContest?.id) {
@@ -257,7 +258,9 @@ export default function InviteManager({ open, onClose }: InviteManagerProps) {
                       variant="body2"
                       sx={{ color: 'rgba(255,255,255,0.8)', fontSize: '0.85rem' }}
                     >
-                      {invite.maxSquares} sq/person · {invite.role}
+                      {invite.role === 'viewer'
+                        ? invite.role
+                        : `${invite.maxSquares} sq/person · ${invite.role}`}
                     </Typography>
                     <Typography variant="caption" sx={{ color: 'rgba(255,255,255,0.5)' }}>
                       {invite.maxUses
