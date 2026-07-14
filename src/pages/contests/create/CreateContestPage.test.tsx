@@ -16,6 +16,7 @@ vi.mock('react-router-dom', async () => {
 });
 
 vi.mock('react-oidc-context', () => ({ useAuth: vi.fn() }));
+vi.mock('../../../hooks/useAxiosAuth', () => ({ useAxiosAuth: vi.fn(() => true) }));
 vi.mock('react-helmet-async', () => ({
   Helmet: ({ children }: { children: React.ReactNode }) => <>{children}</>,
 }));
