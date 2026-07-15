@@ -267,6 +267,7 @@ export default function CreateContestPage() {
                                 maxHeight: { xs: 250, sm: 300 },
                                 '& .MuiMenuItem-root': {
                                   fontSize: { xs: 12, sm: 13, md: 14 },
+                                  whiteSpace: 'nowrap',
                                   overflow: 'hidden',
                                   textOverflow: 'ellipsis',
                                 },
