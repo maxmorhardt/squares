@@ -9,6 +9,11 @@ import {
   Typography,
 } from '@mui/material';
 
+const trophyPulse = keyframes`
+  0%, 100% { transform: scale(1); box-shadow: 0 0 20px rgba(67,233,123,0.2); }
+  50% { transform: scale(1.08); box-shadow: 0 0 32px rgba(67,233,123,0.4); }
+`;
+
 interface WinnerDialogData {
   quarter: number;
   homeScore: number;
@@ -67,10 +72,7 @@ export default function WinnerCelebrationDialog({ data, onClose }: WinnerCelebra
             justifyContent: 'center',
             mx: 'auto',
             mb: 2.5,
-            animation: `${keyframes`
-              0%, 100% { transform: scale(1); box-shadow: 0 0 20px rgba(67,233,123,0.2); }
-              50% { transform: scale(1.08); box-shadow: 0 0 32px rgba(67,233,123,0.4); }
-            `} 2s ease-in-out infinite`,
+            animation: `${trophyPulse} 2s ease-in-out infinite`,
           }}
         >
           <EmojiEvents sx={{ fontSize: 36, color: '#ffd700' }} />

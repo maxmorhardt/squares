@@ -1,15 +1,16 @@
 import {
+  Box,
   Button,
+  CircularProgress,
   Dialog,
   DialogActions,
   DialogContent,
   DialogTitle,
   IconButton,
-  TextField,
   Typography,
 } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
-import { useEffect, useState, type ChangeEvent } from 'react';
+import EmojiEventsIcon from '@mui/icons-material/EmojiEvents';
 import { useAuth } from 'react-oidc-context';
 import {
   selectCurrentContest,
@@ -17,7 +18,7 @@ import {
   selectSquareLoading,
 } from '../../../features/contests/contestSelectors';
 
-import { clearSquare, updateSquare } from '../../../features/contests/contestThunks';
+import { clearSquare } from '../../../features/contests/contestThunks';
 import { useAppDispatch, useAppSelector } from '../../../hooks/reduxHooks';
 
 interface EditSquareProps {
@@ -33,106 +34,13 @@ export default function EditSquare({ open, onClose }: EditSquareProps) {
   const currentContest = useAppSelector(selectCurrentContest);
   const loading = useAppSelector(selectSquareLoading);
 
-  const [value, setValue] = useState('');
-  const [error, setError] = useState(false);
-
-  // helper function to extract initials from name
-  const getInitials = (name: string): string => {
-    const trimmed = name.trim();
-    if (!trimmed) {
-      return '';
-    }
-
-    const splitName = trimmed.split(/\s+/);
-    let initials = '';
-    for (let i = 0; i < splitName.length && initials.length < 3; i++) {
-      initials += splitName[i].charAt(0).toUpperCase();
-    }
-
-    return initials;
-  };
-
-  // initialize with existing value or user's initials
-  useEffect(() => {
-    if (currentSquare?.value) {
-      setValue(currentSquare.value);
-      return;
-    }
-
-    const name = auth.user?.profile?.name || '';
-    setValue(getInitials(name));
-  }, [currentSquare, auth.user?.profile?.name]);
-
   if (!currentSquare) {
     return;
   }
 
-  const handleSave = () => {
-    if (!value.trim()) {
-      setError(true);
-      return;
-    }
-
-    if (currentSquare && auth?.user?.profile?.email) {
-      setError(false);
-      dispatch(
-        updateSquare({
-          contestId: currentSquare.contestId,
-          squareId: currentSquare.id,
-          value: value,
-          owner: auth.user.profile.email,
-        })
-      );
-      onClose();
-    }
-  };
-
-  const handleClear = async () => {
-    if (currentSquare) {
-      try {
-        await dispatch(
-          clearSquare({
-            contestId: currentSquare.contestId,
-            squareId: currentSquare.id,
-          })
-        ).unwrap();
-        onClose();
-      } catch (error) {
-        console.error('Failed to clear square:', error);
-      }
-    }
-  };
-
-  const handleValueChange = (event: ChangeEvent<HTMLInputElement>) => {
-    const input = event.target.value;
-
-    // alphanumeric only, uppercase, max 3 chars
-    const filtered = input
-      .replace(/[^a-zA-Z0-9]/g, '')
-      .toUpperCase()
-      .slice(0, 3);
-
-    setValue(filtered);
-    if (error && filtered.trim()) {
-      setError(false);
-    }
-  };
-
-  const handleClose = () => {
-    if (currentSquare?.value) {
-      setValue(currentSquare.value);
-    } else {
-      const name = auth?.user?.profile?.name || '';
-      setValue(getInitials(name));
-    }
-
-    setError(false);
-    onClose();
-  };
-
-  const isOwner = currentSquare?.owner === auth?.user?.profile?.email;
-  const isReadOnly = Boolean(currentSquare?.owner && !isOwner);
+  const isOwner = currentSquare.owner === auth?.user?.profile?.email;
   const isActive = currentContest?.status === 'ACTIVE';
+  const isClaimed = Boolean(currentSquare.value && currentSquare.value.trim());
 
   const winningQuarters =
     currentContest?.quarterResults
@@ -142,13 +50,57 @@ export default function EditSquare({ open, onClose }: EditSquareProps) {
 
   const isWinner = winningQuarters.length > 0;
 
+  const handleClear = async () => {
+    try {
+      await dispatch(
+        clearSquare({
+          contestId: currentSquare.contestId,
+          squareId: currentSquare.id,
+        })
+      ).unwrap();
+      onClose();
+    } catch (error) {
+      console.error('Failed to clear square:', error);
+    }
+  };
+
+  const canClear = isActive && isOwner && isClaimed;
+  const title = isOwner ? 'Your Square' : isClaimed ? 'Square Details' : 'Empty Square';
+
+  // the initials preview tile echoes the grid's glass styling, tinted for the
+  // current viewer's own squares and for winning squares
+  const tileBackground = isWinner
+    ? 'rgba(67, 233, 123, 0.18)'
+    : isOwner
+      ? 'rgba(102, 126, 234, 0.2)'
+      : 'rgba(255, 255, 255, 0.06)';
+  const tileBorder = isWinner
+    ? '2px solid rgba(67, 233, 123, 0.6)'
+    : isOwner
+      ? '1px solid rgba(102, 126, 234, 0.5)'
+      : '1px solid rgba(255, 255, 255, 0.15)';
+
   return (
-    <Dialog open={open} onClose={handleClose} maxWidth="xs" fullWidth>
+    <Dialog
+      open={open}
+      onClose={onClose}
+      maxWidth="xs"
+      fullWidth
+      slotProps={{
+        paper: {
+          sx: {
+            borderRadius: 3,
+            border: '1px solid rgba(255,255,255,0.1)',
+            backgroundImage: 'none',
+          },
+        },
+      }}
+    >
       {/* dialog title with close button */}
-      <DialogTitle sx={{ fontSize: 20, fontWeight: 'bold', pr: 6 }}>
-        {isReadOnly ? 'View Square' : 'Edit Square'}
+      <DialogTitle sx={{ fontSize: 20, fontWeight: 700, pr: 6 }}>
+        {title}
         <IconButton
-          onClick={handleClose}
+          onClick={onClose}
           sx={{
             position: 'absolute',
             right: 8,
@@ -159,73 +111,99 @@ export default function EditSquare({ open, onClose }: EditSquareProps) {
           <CloseIcon />
         </IconButton>
       </DialogTitle>
-      {/* form content with input, owner, and winner info */}
+
       <DialogContent>
-        {/* initials input form */}
-        <form
-          onSubmit={(e) => {
-            e.preventDefault();
-            handleSave();
+        <Box
+          sx={{
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            gap: 2,
+            pt: 1,
           }}
         >
-          <TextField
-            autoFocus
-            margin="dense"
-            label="Initials"
-            fullWidth
-            variant="outlined"
-            value={value}
-            onChange={handleValueChange}
-            error={error}
-            disabled={isReadOnly || !isActive}
-          />
-        </form>
-
-        {/* display square owner's full name */}
-        {currentSquare?.owner && currentSquare.owner.trim() && (
-          <Typography
-            variant="body2"
+          {/* initials preview tile */}
+          <Box
             sx={{
-              mt: 2,
-              color: 'rgba(255,255,255,0.8)',
-              overflowWrap: 'anywhere',
+              width: 92,
+              height: 92,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              borderRadius: 2.5,
+              fontSize: 34,
+              fontWeight: 700,
+              letterSpacing: '0.04em',
+              color: 'white',
+              background: tileBackground,
+              border: tileBorder,
+              backdropFilter: 'blur(10px)',
+              boxShadow: isWinner ? '0 0 22px rgba(67, 233, 123, 0.25)' : 'none',
             }}
           >
-            Owner: {currentSquare.ownerName || currentSquare.owner}
-          </Typography>
-        )}
+            {isClaimed ? currentSquare.value : '—'}
+          </Box>
 
-        {/* display winner badge if square won any quarters */}
-        {isWinner && (
-          <Typography
-            variant="body2"
-            sx={{
-              mt: 1,
-              color: 'rgba(67, 233, 123, 0.9)',
-              fontWeight: 'bold',
-              fontSize: { xs: '0.8rem', md: '0.9rem' },
-            }}
-          >
-            🏆 Winner: {winningQuarters.map((q) => `Quarter ${q}`).join(', ')}
-          </Typography>
-        )}
-      </DialogContent>
-      {/* clear and save buttons (only shown in active state) */}
-      {isActive && !isReadOnly && (
-        <DialogActions>
-          {currentSquare?.value && (
-            <Button onClick={handleClear} disabled={loading} color="warning">
-              Clear Square
-            </Button>
+          {/* square owner */}
+          {isClaimed ? (
+            <Box sx={{ textAlign: 'center' }}>
+              <Typography
+                variant="caption"
+                sx={{
+                  color: 'text.secondary',
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.08em',
+                }}
+              >
+                {isOwner ? 'Claimed by you' : 'Claimed by'}
+              </Typography>
+              <Typography sx={{ fontWeight: 600, overflowWrap: 'anywhere' }}>
+                {currentSquare.ownerName || currentSquare.owner}
+              </Typography>
+            </Box>
+          ) : (
+            <Typography variant="body2" sx={{ color: 'text.secondary' }}>
+              This square is unclaimed
+            </Typography>
           )}
 
+          {/* winner badge if square won any quarters */}
+          {isWinner && (
+            <Box
+              sx={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: 0.75,
+                px: 1.5,
+                py: 0.75,
+                borderRadius: 999,
+                background: 'rgba(67, 233, 123, 0.12)',
+                border: '1px solid rgba(67, 233, 123, 0.4)',
+              }}
+            >
+              <EmojiEventsIcon sx={{ fontSize: 18, color: 'rgba(67, 233, 123, 0.9)' }} />
+              <Typography
+                variant="body2"
+                sx={{ color: 'rgba(67, 233, 123, 0.9)', fontWeight: 700 }}
+              >
+                Winner · {winningQuarters.map((q) => `Q${q}`).join(', ')}
+              </Typography>
+            </Box>
+          )}
+        </Box>
+      </DialogContent>
+
+      {/* clear action, only for the owner while the contest is active */}
+      {canClear && (
+        <DialogActions sx={{ p: 2, pt: 0 }}>
           <Button
-            variant="contained"
-            onClick={handleSave}
+            onClick={handleClear}
+            variant="outlined"
+            color="warning"
             disabled={loading}
-            sx={{ position: 'relative', minHeight: 37, minWidth: 100 }}
+            sx={{ minHeight: 37, minWidth: 120 }}
           >
-            Save
+            {loading ? <CircularProgress size={16} color="inherit" /> : 'Clear Square'}
           </Button>
         </DialogActions>
       )}

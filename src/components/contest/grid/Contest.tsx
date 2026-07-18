@@ -1,12 +1,14 @@
 import { Box, Paper, Typography } from '@mui/material';
-import { useState } from 'react';
+import { useCallback, useMemo, useRef, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from 'react-oidc-context';
 import {
   selectCurrentContest,
   selectParticipants,
 } from '../../../features/contests/contestSelectors';
 import { setCurrentSquare } from '../../../features/contests/contestSlice';
-import { updateSquare } from '../../../features/contests/contestThunks';
+import { claimSquare } from '../../../features/contests/contestThunks';
+import { selectDefaultInitials } from '../../../features/user/userSelectors';
 import { useAppDispatch, useAppSelector } from '../../../hooks/reduxHooks';
 import { useToast } from '../../../hooks/useToast';
 import EditSquare from './EditSquare';
@@ -19,8 +21,10 @@ interface ContestProps {
 export default function Contest({ newWinnerSquare }: ContestProps) {
   const auth = useAuth();
   const dispatch = useAppDispatch();
+  const navigate = useNavigate();
   const currentContest = useAppSelector(selectCurrentContest);
   const participants = useAppSelector(selectParticipants);
+  const defaultInitials = useAppSelector(selectDefaultInitials);
   const { showToast } = useToast();
   const [openEditSquare, setOpenEditSquare] = useState(false);
 
@@ -30,68 +34,51 @@ export default function Contest({ newWinnerSquare }: ContestProps) {
   const isOwner = currentUsername === currentContest?.owner;
   const isReadOnly = !isParticipant && !isOwner;
 
-  if (
-    !currentContest ||
-    !currentContest.xLabels ||
-    !currentContest.yLabels ||
-    !currentContest.squares
-  ) {
-    return;
-  }
-
-  // build 2d matrix for grid display
-  const numRows = currentContest.yLabels.length;
-  const numCols = currentContest.xLabels.length;
-  const contestMatrix: string[][] = Array.from({ length: numRows }, () => Array(numCols).fill(''));
-  const ownerMatrix: string[][] = Array.from({ length: numRows }, () => Array(numCols).fill(''));
-
-  // populate matrix with square values and owners
-  currentContest.squares.forEach((square) => {
-    if (square.row < numRows && square.col < numCols) {
-      contestMatrix[square.row][square.col] = square.value;
-      ownerMatrix[square.row][square.col] = square.owner;
-    }
-  });
-
-  // check if a square position is a winner
-  const isWinningSquare = (row: number, col: number): boolean => {
-    if (!currentContest.quarterResults) {
-      return false;
-    }
-
-    return (
-      currentContest.quarterResults.filter(
-        (quarterResult) => quarterResult.winnerRow === row && quarterResult.winnerCol === col
-      ).length > 0
-    );
+  // the click handler needs the latest contest/state, but must stay referentially
+  // stable so memoized squares don't all re-render on every websocket update. a ref
+  // holds the current values and the callback reads through it
+  const clickState = {
+    currentContest,
+    isReadOnly,
+    isAuthenticated: auth?.isAuthenticated ?? false,
+    signinRedirect: auth?.signinRedirect,
+    currentUsername,
+    currentParticipant,
+    defaultInitials,
+    showToast,
+    navigate,
+    dispatch,
   };
+  const clickStateRef = useRef(clickState);
+  clickStateRef.current = clickState;
 
-  // helper to extract initials from user name
-  const getInitials = (name: string): string => {
-    const trimmed = name.trim();
-    if (!trimmed) {
-      return '';
+  const handleSquareClick = useCallback((row: number, col: number) => {
+    const {
+      currentContest,
+      isReadOnly,
+      isAuthenticated,
+      signinRedirect,
+      currentUsername,
+      currentParticipant,
+      defaultInitials,
+      showToast,
+      navigate,
+      dispatch,
+    } = clickStateRef.current;
+
+    if (!currentContest) {
+      return;
     }
 
-    const parts = trimmed.split(/\s+/);
-    let initials = '';
-    for (let i = 0; i < parts.length && initials.length < 3; i++) {
-      initials += parts[i].charAt(0).toUpperCase();
-    }
-    return initials;
-  };
-
-  const handleSquareClick = async (row: number, col: number) => {
-    // redirect to login if not authenticated
-    if (!auth.isAuthenticated) {
-      sessionStorage.setItem('auth_redirect_path', window.location.href);
-      auth.signinRedirect();
+    // send unauthenticated users to sign in before they can interact with squares
+    if (!isAuthenticated) {
+      signinRedirect?.();
       return;
     }
 
     // block non-participants on public contests
     if (isReadOnly) {
-      showToast('You need an invite link to participate', 'info');
+      showToast('You need to be a participant to claim squares', 'info');
       return;
     }
 
@@ -117,22 +104,17 @@ export default function Contest({ newWinnerSquare }: ContestProps) {
         return;
       }
 
-      // fill empty square directly with user initials
-      const username = auth.user?.profile?.email;
-      const name = auth.user?.profile?.name || '';
-      const initials = getInitials(name);
-
-      if (!username || !initials) {
-        showToast('Unable to determine your initials', 'error');
+      // require default initials to be set before claiming square
+      if (!defaultInitials) {
+        showToast('Set your initials in your profile before claiming a square', 'warning');
+        navigate('/profile');
         return;
       }
 
       dispatch(
-        updateSquare({
+        claimSquare({
           contestId: currentContest.id,
           squareId: square.id,
-          value: initials,
-          owner: username,
         })
       );
     } else {
@@ -140,7 +122,40 @@ export default function Contest({ newWinnerSquare }: ContestProps) {
       dispatch(setCurrentSquare(square));
       setOpenEditSquare(true);
     }
-  };
+  }, []);
+
+  // set of "row-col" keys for winning squares, so each cell is an O(1) lookup
+  // instead of scanning quarterResults on every render
+  const winnerKeys = useMemo(() => {
+    const keys = new Set<string>();
+    currentContest?.quarterResults?.forEach((qr) => {
+      keys.add(`${qr.winnerRow}-${qr.winnerCol}`);
+    });
+    return keys;
+  }, [currentContest?.quarterResults]);
+
+  if (
+    !currentContest ||
+    !currentContest.xLabels ||
+    !currentContest.yLabels ||
+    !currentContest.squares
+  ) {
+    return;
+  }
+
+  // build 2d matrix for grid display
+  const numRows = currentContest.yLabels.length;
+  const numCols = currentContest.xLabels.length;
+  const contestMatrix: string[][] = Array.from({ length: numRows }, () => Array(numCols).fill(''));
+  const ownerMatrix: string[][] = Array.from({ length: numRows }, () => Array(numCols).fill(''));
+
+  // populate matrix with square values and owners
+  currentContest.squares.forEach((square) => {
+    if (square.row < numRows && square.col < numCols) {
+      contestMatrix[square.row][square.col] = square.value;
+      ownerMatrix[square.row][square.col] = square.owner;
+    }
+  });
 
   return (
     <>
@@ -233,7 +248,7 @@ export default function Contest({ newWinnerSquare }: ContestProps) {
                         handleSquareClick={handleSquareClick}
                         xLabel={currentContest.xLabels[colIndex]}
                         yLabel={currentContest.yLabels[rowIndex]}
-                        isWinner={isWinningSquare(rowIndex, colIndex)}
+                        isWinner={winnerKeys.has(`${rowIndex}-${colIndex}`)}
                         isMine={
                           !!currentUsername && ownerMatrix[rowIndex][colIndex] === currentUsername
                         }
