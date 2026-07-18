@@ -124,6 +124,10 @@ describe('EditSquare', () => {
     expect(screen.getByText('Your Square')).toBeInTheDocument();
     expect(screen.getByText('AS')).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /clear square/i })).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: /change your default initials/i })).toHaveAttribute(
+      'href',
+      '/profile'
+    );
   });
 
   it('shows details and no clear action when owned by another user', () => {
@@ -131,7 +135,7 @@ describe('EditSquare', () => {
     renderDialog(filledSquare);
     expect(screen.getByText('Square Details')).toBeInTheDocument();
     expect(screen.queryByRole('button', { name: /clear square/i })).not.toBeInTheDocument();
-    expect(screen.getByText('Bob Jones')).toBeInTheDocument();
+    expect(screen.getByText(/Claimed by Bob Jones/)).toBeInTheDocument();
   });
 
   it('calls clearSquareById when Clear Square button is clicked', async () => {

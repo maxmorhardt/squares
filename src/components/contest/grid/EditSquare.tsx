@@ -7,11 +7,13 @@ import {
   DialogContent,
   DialogTitle,
   IconButton,
+  Link,
   Typography,
 } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
 import EmojiEventsIcon from '@mui/icons-material/EmojiEvents';
 import { useAuth } from 'react-oidc-context';
+import { Link as RouterLink } from 'react-router-dom';
 import {
   selectCurrentContest,
   selectCurrentSquare,
@@ -67,35 +69,8 @@ export default function EditSquare({ open, onClose }: EditSquareProps) {
   const canClear = isActive && isOwner && isClaimed;
   const title = isOwner ? 'Your Square' : isClaimed ? 'Square Details' : 'Empty Square';
 
-  // the initials preview tile echoes the grid's glass styling, tinted for the
-  // current viewer's own squares and for winning squares
-  const tileBackground = isWinner
-    ? 'rgba(67, 233, 123, 0.18)'
-    : isOwner
-      ? 'rgba(102, 126, 234, 0.2)'
-      : 'rgba(255, 255, 255, 0.06)';
-  const tileBorder = isWinner
-    ? '2px solid rgba(67, 233, 123, 0.6)'
-    : isOwner
-      ? '1px solid rgba(102, 126, 234, 0.5)'
-      : '1px solid rgba(255, 255, 255, 0.15)';
-
   return (
-    <Dialog
-      open={open}
-      onClose={onClose}
-      maxWidth="xs"
-      fullWidth
-      slotProps={{
-        paper: {
-          sx: {
-            borderRadius: 3,
-            border: '1px solid rgba(255,255,255,0.1)',
-            backgroundImage: 'none',
-          },
-        },
-      }}
-    >
+    <Dialog open={open} onClose={onClose} maxWidth="xs" fullWidth>
       {/* dialog title with close button */}
       <DialogTitle sx={{ fontSize: 20, fontWeight: 700, pr: 6 }}>
         {title}
@@ -113,57 +88,30 @@ export default function EditSquare({ open, onClose }: EditSquareProps) {
       </DialogTitle>
 
       <DialogContent>
-        <Box
-          sx={{
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            gap: 2,
-            pt: 1,
-          }}
-        >
-          {/* initials preview tile */}
-          <Box
-            sx={{
-              width: 92,
-              height: 92,
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              borderRadius: 2.5,
-              fontSize: 34,
-              fontWeight: 700,
-              letterSpacing: '0.04em',
-              color: 'white',
-              background: tileBackground,
-              border: tileBorder,
-              backdropFilter: 'blur(10px)',
-              boxShadow: isWinner ? '0 0 22px rgba(67, 233, 123, 0.25)' : 'none',
-            }}
-          >
-            {isClaimed ? currentSquare.value : '—'}
-          </Box>
-
-          {/* square owner */}
+        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
+          {/* square details */}
           {isClaimed ? (
-            <Box sx={{ textAlign: 'center' }}>
+            <>
+              <Box sx={{ display: 'flex', gap: 1, alignItems: 'baseline' }}>
+                <Typography variant="body2" sx={{ color: 'text.secondary' }}>
+                  Initials:
+                </Typography>
+                <Typography variant="h6" sx={{ fontWeight: 'bold' }}>
+                  {currentSquare.value}
+                </Typography>
+              </Box>
               <Typography
-                variant="caption"
-                sx={{
-                  color: 'text.secondary',
-                  textTransform: 'uppercase',
-                  letterSpacing: '0.08em',
-                }}
+                variant="body2"
+                sx={{ color: 'text.secondary', overflowWrap: 'anywhere' }}
               >
-                {isOwner ? 'Claimed by you' : 'Claimed by'}
+                {isOwner
+                  ? 'Claimed by you'
+                  : `Claimed by ${currentSquare.ownerName || currentSquare.owner}`}
               </Typography>
-              <Typography sx={{ fontWeight: 600, overflowWrap: 'anywhere' }}>
-                {currentSquare.ownerName || currentSquare.owner}
-              </Typography>
-            </Box>
+            </>
           ) : (
             <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-              This square is unclaimed
+              This square is unclaimed.
             </Typography>
           )}
 
@@ -171,6 +119,7 @@ export default function EditSquare({ open, onClose }: EditSquareProps) {
           {isWinner && (
             <Box
               sx={{
+                alignSelf: 'flex-start',
                 display: 'flex',
                 alignItems: 'center',
                 gap: 0.75,
@@ -189,6 +138,16 @@ export default function EditSquare({ open, onClose }: EditSquareProps) {
                 Winner · {winningQuarters.map((q) => `Q${q}`).join(', ')}
               </Typography>
             </Box>
+          )}
+
+          {/* let the owner update the default initials future claims will use */}
+          {isOwner && (
+            <Typography variant="body2" sx={{ color: 'text.secondary' }}>
+              Your initials come from your profile.{' '}
+              <Link component={RouterLink} to="/profile" onClick={onClose}>
+                Change your default initials
+              </Link>
+            </Typography>
           )}
         </Box>
       </DialogContent>

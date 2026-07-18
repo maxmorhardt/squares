@@ -86,7 +86,7 @@ export function useContestWebSocket({
         !FATAL_CLOSE_CODES.includes(event.code) && socketUrl !== null,
       reconnectAttempts: 1,
       reconnectInterval: RECONNECT_INTERVAL_MS,
-      protocols: auth.user?.access_token ? [auth.user.access_token] : undefined,
+      protocols: auth.user?.id_token ? [auth.user.id_token] : undefined,
       onOpen: () => {
         setIsConnecting(false);
         setConnectionFailed(false);

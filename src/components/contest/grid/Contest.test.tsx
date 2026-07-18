@@ -135,20 +135,6 @@ describe('Contest (grid)', () => {
     expect(container).toBeEmptyDOMElement();
   });
 
-  it('calls signinRedirect when unauthenticated user clicks a square', () => {
-    const signinRedirect = vi.fn();
-    vi.mocked(useAuth).mockReturnValue({
-      isAuthenticated: false,
-      isLoading: false,
-      user: null,
-      signinRedirect,
-    } as unknown as ReturnType<typeof useAuth>);
-    renderContest();
-    const buttons = screen.getAllByRole('button');
-    fireEvent.click(buttons[0]);
-    expect(signinRedirect).toHaveBeenCalled();
-  });
-
   it('renders without crashing when read-only authenticated user clicks a square', () => {
     vi.mocked(useAuth).mockReturnValue({
       isAuthenticated: true,

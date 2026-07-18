@@ -1,5 +1,5 @@
 import { Box, Paper, Typography } from '@mui/material';
-import { useCallback, useMemo, useRef, useState } from 'react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from 'react-oidc-context';
 import {
@@ -34,48 +34,43 @@ export default function Contest({ newWinnerSquare }: ContestProps) {
   const isOwner = currentUsername === currentContest?.owner;
   const isReadOnly = !isParticipant && !isOwner;
 
-  // the click handler needs the latest contest/state, but must stay referentially
-  // stable so memoized squares don't all re-render on every websocket update. a ref
-  // holds the current values and the callback reads through it
-  const clickState = {
-    currentContest,
-    isReadOnly,
-    isAuthenticated: auth?.isAuthenticated ?? false,
-    signinRedirect: auth?.signinRedirect,
-    currentUsername,
-    currentParticipant,
-    defaultInitials,
-    showToast,
-    navigate,
-    dispatch,
+  if (
+    !currentContest ||
+    !currentContest.xLabels ||
+    !currentContest.yLabels ||
+    !currentContest.squares
+  ) {
+    return;
+  }
+
+  // build 2d matrix for grid display
+  const numRows = currentContest.yLabels.length;
+  const numCols = currentContest.xLabels.length;
+  const contestMatrix: string[][] = Array.from({ length: numRows }, () => Array(numCols).fill(''));
+  const ownerMatrix: string[][] = Array.from({ length: numRows }, () => Array(numCols).fill(''));
+
+  // populate matrix with square values and owners
+  currentContest.squares.forEach((square) => {
+    if (square.row < numRows && square.col < numCols) {
+      contestMatrix[square.row][square.col] = square.value;
+      ownerMatrix[square.row][square.col] = square.owner;
+    }
+  });
+
+  // check if a square position is a winner
+  const isWinningSquare = (row: number, col: number): boolean => {
+    if (!currentContest.quarterResults) {
+      return false;
+    }
+
+    return (
+      currentContest.quarterResults.filter(
+        (quarterResult) => quarterResult.winnerRow === row && quarterResult.winnerCol === col
+      ).length > 0
+    );
   };
-  const clickStateRef = useRef(clickState);
-  clickStateRef.current = clickState;
 
-  const handleSquareClick = useCallback((row: number, col: number) => {
-    const {
-      currentContest,
-      isReadOnly,
-      isAuthenticated,
-      signinRedirect,
-      currentUsername,
-      currentParticipant,
-      defaultInitials,
-      showToast,
-      navigate,
-      dispatch,
-    } = clickStateRef.current;
-
-    if (!currentContest) {
-      return;
-    }
-
-    // send unauthenticated users to sign in before they can interact with squares
-    if (!isAuthenticated) {
-      signinRedirect?.();
-      return;
-    }
-
+  const handleSquareClick = async (row: number, col: number) => {
     // block non-participants on public contests
     if (isReadOnly) {
       showToast('You need to be a participant to claim squares', 'info');
@@ -122,40 +117,7 @@ export default function Contest({ newWinnerSquare }: ContestProps) {
       dispatch(setCurrentSquare(square));
       setOpenEditSquare(true);
     }
-  }, []);
-
-  // set of "row-col" keys for winning squares, so each cell is an O(1) lookup
-  // instead of scanning quarterResults on every render
-  const winnerKeys = useMemo(() => {
-    const keys = new Set<string>();
-    currentContest?.quarterResults?.forEach((qr) => {
-      keys.add(`${qr.winnerRow}-${qr.winnerCol}`);
-    });
-    return keys;
-  }, [currentContest?.quarterResults]);
-
-  if (
-    !currentContest ||
-    !currentContest.xLabels ||
-    !currentContest.yLabels ||
-    !currentContest.squares
-  ) {
-    return;
-  }
-
-  // build 2d matrix for grid display
-  const numRows = currentContest.yLabels.length;
-  const numCols = currentContest.xLabels.length;
-  const contestMatrix: string[][] = Array.from({ length: numRows }, () => Array(numCols).fill(''));
-  const ownerMatrix: string[][] = Array.from({ length: numRows }, () => Array(numCols).fill(''));
-
-  // populate matrix with square values and owners
-  currentContest.squares.forEach((square) => {
-    if (square.row < numRows && square.col < numCols) {
-      contestMatrix[square.row][square.col] = square.value;
-      ownerMatrix[square.row][square.col] = square.owner;
-    }
-  });
+  };
 
   return (
     <>
@@ -248,7 +210,7 @@ export default function Contest({ newWinnerSquare }: ContestProps) {
                         handleSquareClick={handleSquareClick}
                         xLabel={currentContest.xLabels[colIndex]}
                         yLabel={currentContest.yLabels[rowIndex]}
-                        isWinner={winnerKeys.has(`${rowIndex}-${colIndex}`)}
+                        isWinner={isWinningSquare(rowIndex, colIndex)}
                         isMine={
                           !!currentUsername && ownerMatrix[rowIndex][colIndex] === currentUsername
                         }

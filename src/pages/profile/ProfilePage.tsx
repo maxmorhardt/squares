@@ -79,12 +79,19 @@ export default function ProfilePage() {
   useEffect(() => {
     if (auth.isAuthenticated && axiosReady) {
       loadStats();
-      // App loads the profile on first auth; ensure it exists if the user deep-links here
-      if (!profile && !profileLoading) {
+      if (!profile && !profileLoading && !profileError) {
         dispatch(loadUserProfile());
       }
     }
-  }, [auth.isAuthenticated, axiosReady, loadStats, profile, profileLoading, dispatch]);
+  }, [
+    auth.isAuthenticated,
+    axiosReady,
+    loadStats,
+    profile,
+    profileLoading,
+    profileError,
+    dispatch,
+  ]);
 
   const startEditingInitials = () => {
     setInitialsValue(profile?.defaultInitials ?? '');
