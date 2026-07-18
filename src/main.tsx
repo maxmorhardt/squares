@@ -39,7 +39,7 @@ const theme = createTheme({
     MuiDialog: {
       styleOverrides: {
         paper: ({ theme }) => ({
-          borderRadius: theme.shape.borderRadius * 3,
+          borderRadius: Number(theme.shape.borderRadius) * 3,
           border: '1px solid rgba(255,255,255,0.1)',
         }),
       },
