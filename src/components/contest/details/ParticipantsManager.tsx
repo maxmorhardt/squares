@@ -32,7 +32,7 @@ import {
 import { useAppDispatch, useAppSelector } from '../../../hooks/reduxHooks';
 import { useToast } from '../../../hooks/useToast';
 import type { Participant, ParticipantRole } from '../../../types/contest';
-import { isInGameStatus, isTerminalStatus } from '../../../utils/contestStatus';
+import { isTerminalStatus } from '../../../utils/contestStatus';
 import LeaveContest from '../LeaveContest';
 
 interface ParticipantsManagerProps {
@@ -371,10 +371,8 @@ export default function ParticipantsManager({
             variant="body2"
             sx={{ color: 'rgba(255,255,255,0.7)', overflowWrap: 'anywhere' }}
           >
-            Are you sure you want to remove <strong>{removeConfirm?.userId}</strong>?{' '}
-            {isInGameStatus(currentContest?.status)
-              ? 'The contest is in progress, so their claimed squares are kept for scoring under a ghost name.'
-              : 'Their claimed squares will be cleared.'}
+            Are you sure you want to remove <strong>{removeConfirm?.userId}</strong>? They'll be
+            removed from the contest and will need a new invite to rejoin.
           </Typography>
         </DialogContent>
         <DialogActions>

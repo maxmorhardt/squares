@@ -52,7 +52,7 @@ export default function ProfilePage() {
   const profileLoading = useAppSelector(selectUserProfileLoading);
   const profileError = useAppSelector(selectUserProfileError);
   const stats = useAppSelector(selectUserStats);
-  const statsLoading = useAppSelector(selectUserStatsLoading);
+  const statsFetching = useAppSelector(selectUserStatsLoading);
   const statsError = useAppSelector(selectUserStatsError);
 
   const [deleteOpen, setDeleteOpen] = useState(false);
@@ -83,11 +83,11 @@ export default function ProfilePage() {
       profileRetried.current = true;
       dispatch(loadUserProfile());
     }
-    if (!stats && !statsLoading && !statsRetried.current) {
+    if (!stats && !statsFetching && !statsRetried.current) {
       statsRetried.current = true;
       dispatch(loadUserStats());
     }
-  }, [auth.isAuthenticated, axiosReady, profile, profileLoading, stats, statsLoading, dispatch]);
+  }, [auth.isAuthenticated, axiosReady, profile, profileLoading, stats, statsFetching, dispatch]);
 
   const startEditingInitials = () => {
     setInitialsValue(profile?.defaultInitials ?? '');

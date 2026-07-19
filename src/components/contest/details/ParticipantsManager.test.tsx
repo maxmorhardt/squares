@@ -323,7 +323,7 @@ describe('ParticipantsManager', () => {
     fireEvent.click(buttons[buttons.length - 1]);
 
     await waitFor(() => expect(screen.getByText('Remove Participant')).toBeInTheDocument());
-    expect(screen.getByText(/ghost name/i)).toBeInTheDocument();
+    expect(screen.getByText(/need a new invite to rejoin/i)).toBeInTheDocument();
     fireEvent.click(screen.getByRole('button', { name: /^remove$/i }));
     await waitFor(() => expect(removeParticipant).toHaveBeenCalled());
   });
