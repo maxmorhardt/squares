@@ -25,6 +25,7 @@ import { selectDefaultInitials } from '../../../features/user/userSelectors';
 import { useAppDispatch, useAppSelector } from '../../../hooks/reduxHooks';
 import { useContestWebSocket } from '../../../hooks/useContestWebSocket';
 import { useToast } from '../../../hooks/useToast';
+import { CONTEST_STACK_MAX_WIDTH } from '../../../types/layout';
 import { Helmet } from 'react-helmet-async';
 
 export default function ContestPage() {
@@ -295,7 +296,7 @@ export default function ContestPage() {
           flexDirection: 'column',
           gap: 3,
           width: '100%',
-          maxWidth: { xs: '360px', sm: '490px', md: '600px' },
+          maxWidth: CONTEST_STACK_MAX_WIDTH,
           margin: '0 auto',
           p: 1,
           mb: 3,
