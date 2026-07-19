@@ -104,6 +104,15 @@ export async function recordQuarterResult(
   }
 }
 
+export async function rollbackQuarterResult(contestId: string): Promise<QuarterResult> {
+  try {
+    const res = await api.post<QuarterResult>(`/contests/${contestId}/quarter-result/rollback`);
+    return res.data;
+  } catch (err: unknown) {
+    throw handleError(err);
+  }
+}
+
 export async function deleteContestById(id: string): Promise<void> {
   try {
     await api.delete<void>(`/contests/${id}`);

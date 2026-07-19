@@ -134,6 +134,14 @@ describe('contestSlice reducers', () => {
       expect(state.currentContest?.homeTeam).toBe('New Home');
     });
 
+    it('should update visibility', () => {
+      const state = contestReducer(
+        { ...initialState, currentContest: { ...mockContest, visibility: 'public' } },
+        updateContestFromWebSocket({ visibility: 'private' })
+      );
+      expect(state.currentContest?.visibility).toBe('private');
+    });
+
     it('should update awayTeam', () => {
       const state = contestReducer(
         { ...initialState, currentContest: { ...mockContest } },

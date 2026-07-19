@@ -217,6 +217,9 @@ export function useContestWebSocket({
             onWinnerDialog({ quarter, homeScore, awayScore, row: winnerRow, col: winnerCol });
           }
         },
+        onQuarterResultRollback: (quarter) => {
+          addActivityEvent('contest_status', `Q${quarter} result was rolled back`);
+        },
         onContestUpdate: (status) => {
           if (status) {
             addActivityEvent('contest_status', `Contest status changed to ${status}`);

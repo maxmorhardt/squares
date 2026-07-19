@@ -166,6 +166,7 @@ describe('contestSocketEventHandler', () => {
       homeTeam: 'Eagles',
       awayTeam: 'Chiefs',
       status: 'Q1',
+      visibility: 'private',
     };
     const data = JSON.stringify({
       type: 'contest_update',
@@ -177,7 +178,9 @@ describe('contestSocketEventHandler', () => {
 
     contestSocketEventHandler(baseParams({ lastMessage: makeMessage(data) }));
 
-    expect(updateContestFromWebSocket).toHaveBeenCalledWith(contest);
+    expect(updateContestFromWebSocket).toHaveBeenCalledWith(
+      expect.objectContaining({ visibility: 'private' })
+    );
     expect(callbacks.onContestUpdate).toHaveBeenCalledWith('Q1');
   });
 
