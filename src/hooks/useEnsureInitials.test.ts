@@ -61,11 +61,19 @@ describe('useEnsureInitials', () => {
     expect(store.getState().user.profile?.defaultInitials).toBe('BS');
   });
 
-  it('returns an empty string when the refetch fails', async () => {
-    vi.mocked(getMyProfile).mockRejectedValue(new Error('down'));
+  it('returns an empty string when the store and profile both have no initials', async () => {
+    vi.mocked(getMyProfile).mockResolvedValue({ ...profile, defaultInitials: '' });
     const store = makeStore(null);
     const { result } = renderHook(() => useEnsureInitials(), { wrapper: wrapper(store) });
 
     await expect(result.current()).resolves.toBe('');
+  });
+
+  it('rejects when the refetch fails so callers can distinguish it from unset initials', async () => {
+    vi.mocked(getMyProfile).mockRejectedValue(new Error('down'));
+    const store = makeStore(null);
+    const { result } = renderHook(() => useEnsureInitials(), { wrapper: wrapper(store) });
+
+    await expect(result.current()).rejects.toThrow();
   });
 });

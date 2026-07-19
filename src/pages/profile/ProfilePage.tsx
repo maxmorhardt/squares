@@ -28,6 +28,7 @@ import {
   selectUserProfileError,
   selectUserProfileLoading,
   selectUserStats,
+  selectUserStatsLoading,
   selectUserStatsError,
 } from '../../features/user/userSelectors';
 import { loadUserProfile, loadUserStats, updateUserInitials } from '../../features/user/userThunks';
@@ -51,6 +52,7 @@ export default function ProfilePage() {
   const profileLoading = useAppSelector(selectUserProfileLoading);
   const profileError = useAppSelector(selectUserProfileError);
   const stats = useAppSelector(selectUserStats);
+  const statsLoading = useAppSelector(selectUserStatsLoading);
   const statsError = useAppSelector(selectUserStatsError);
 
   const [deleteOpen, setDeleteOpen] = useState(false);
@@ -81,11 +83,11 @@ export default function ProfilePage() {
       profileRetried.current = true;
       dispatch(loadUserProfile());
     }
-    if (!stats && !statsRetried.current) {
+    if (!stats && !statsLoading && !statsRetried.current) {
       statsRetried.current = true;
       dispatch(loadUserStats());
     }
-  }, [auth.isAuthenticated, axiosReady, profile, profileLoading, stats, dispatch]);
+  }, [auth.isAuthenticated, axiosReady, profile, profileLoading, stats, statsLoading, dispatch]);
 
   const startEditingInitials = () => {
     setInitialsValue(profile?.defaultInitials ?? '');

@@ -10,6 +10,7 @@ import {
   updateContestById,
   startContest,
   recordQuarterResult,
+  rollbackQuarterResult,
   deleteContestById,
   submitContactForm,
   getMyContests,
@@ -186,6 +187,16 @@ describe('contestService', () => {
       homeTeamScore: 14,
       awayTeamScore: 7,
     });
+  });
+
+  it('should roll back a quarter result', async () => {
+    const mockResult = { quarter: 2, homeTeamScore: 21, awayTeamScore: 10 };
+    vi.mocked(api.post).mockResolvedValue({ data: mockResult });
+
+    const result = await rollbackQuarterResult('c1');
+
+    expect(result).toEqual(mockResult);
+    expect(api.post).toHaveBeenCalledWith('/contests/c1/quarter-result/rollback');
   });
 
   it('should delete a contest', async () => {

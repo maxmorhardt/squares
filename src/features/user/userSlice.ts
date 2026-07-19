@@ -7,6 +7,7 @@ interface UserState {
   loading: boolean;
   error: string | null;
   stats: UserStats | null;
+  statsLoading: boolean;
   statsError: boolean;
 }
 
@@ -15,6 +16,7 @@ const initialState: UserState = {
   loading: false,
   error: null,
   stats: null,
+  statsLoading: false,
   statsError: false,
 };
 
@@ -37,12 +39,15 @@ const userSlice = createSlice({
         state.error = action.payload?.message ?? 'Failed to load profile';
       })
       .addCase(loadUserStats.pending, (state) => {
+        state.statsLoading = true;
         state.statsError = false;
       })
       .addCase(loadUserStats.fulfilled, (state, action) => {
+        state.statsLoading = false;
         state.stats = action.payload;
       })
       .addCase(loadUserStats.rejected, (state) => {
+        state.statsLoading = false;
         state.statsError = true;
       })
       .addCase(updateUserInitials.fulfilled, (state, action) => {

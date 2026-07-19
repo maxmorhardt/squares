@@ -76,12 +76,15 @@ export default function ContestPage() {
 
   const onParticipantRemoved = useCallback(
     (isCurrentUser: boolean, isPrivate: boolean) => {
-      if (!isCurrentUser) return;
+      if (!isCurrentUser) {
+        return;
+      }
+
+      const severity = isPrivate ? 'warning' : 'info';
+      showToast('You have been removed from this contest', severity);
+
       if (isPrivate) {
-        showToast('You have been removed from this contest', 'warning');
         navigate('/contests');
-      } else {
-        showToast('You have been removed as a participant', 'info');
       }
     },
     [showToast, navigate]
@@ -134,7 +137,13 @@ export default function ContestPage() {
 
     // claim uses the profile default initials; confirm against the backend (the store can be
     // stale) before requiring them
-    const initials = await ensureInitials();
+    let initials: string;
+    try {
+      initials = await ensureInitials();
+    } catch {
+      showToast('Could not verify your initials, please try again', 'error');
+      return;
+    }
     if (!initials) {
       showToast('Set your initials in your profile before claiming a square', 'warning');
       navigate('/profile');
