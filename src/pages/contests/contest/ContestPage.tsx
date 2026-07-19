@@ -7,7 +7,7 @@ import ContestComponent from '../../../components/contest/grid/Contest';
 import ContestDetails from '../../../components/contest/details/ContestDetails';
 import ContestPageSkeleton from '../../../components/contest/ContestPageSkeleton';
 import LoadingScreen from '../../../components/common/LoadingScreen';
-import GenericErrorDisplay from '../../../components/contest/GenericErrorDisplay';
+import ContestError from '../../../components/contest/ContestError';
 import WinnerCelebrationDialog from '../../../components/contest/WinnerCelebrationDialog';
 import NotFoundPage from '../../error/NotFoundPage';
 import ForbiddenPage from '../../error/ForbiddenPage';
@@ -182,7 +182,7 @@ export default function ContestPage() {
 
   // show error if connection failed after max retries
   if (connectionFailed) {
-    return <GenericErrorDisplay />;
+    return <ContestError />;
   }
 
   // handle fatal WS close codes
@@ -193,7 +193,7 @@ export default function ContestPage() {
     if (wsCloseCode === 4404) {
       return <NotFoundPage />;
     }
-    return <GenericErrorDisplay />;
+    return <ContestError />;
   }
 
   // show skeleton while connecting or loading contest data

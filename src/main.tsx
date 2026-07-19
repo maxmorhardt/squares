@@ -11,6 +11,7 @@ import { store } from './app/store';
 import './index.css';
 import CallbackPage from './pages/auth/CallbackPage';
 import ContactPage from './pages/contact/ContactPage';
+import DebugPage from './pages/debug/DebugPage';
 import ContestPage from './pages/contests/contest/ContestPage';
 import ContestsPage from './pages/contests/ContestsPage';
 import CreateContestPage from './pages/contests/create/CreateContestPage';
@@ -62,6 +63,8 @@ const router = createBrowserRouter([
       { path: 'join/:token', element: <JoinPage /> },
       { path: 'contact', element: <ContactPage /> },
       { path: 'learn-more', element: <LearnMorePage /> },
+      // dev-only preview of the error screens; never routed in production builds
+      ...(import.meta.env.DEV ? [{ path: 'debug', element: <DebugPage /> }] : []),
       { path: '*', element: <NotFoundPage /> },
     ],
   },
