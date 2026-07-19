@@ -46,7 +46,7 @@ export async function createNewContest(request: CreateContestRequest) {
 
 export async function claimSquareById(contestId: string, squareId: string): Promise<Square> {
   try {
-    const res = await api.patch<Square>(`/contests/${contestId}/squares/${squareId}`);
+    const res = await api.post<Square>(`/contests/${contestId}/squares/${squareId}/claim`);
     return res.data;
   } catch (err: unknown) {
     throw handleError(err);

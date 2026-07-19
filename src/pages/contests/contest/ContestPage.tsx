@@ -21,9 +21,9 @@ import {
 } from '../../../features/contests/contestSelectors';
 import { clearSquareErrorCode } from '../../../features/contests/contestSlice';
 import { claimSquare, clearMySquares } from '../../../features/contests/contestThunks';
-import { selectDefaultInitials } from '../../../features/user/userSelectors';
 import { useAppDispatch, useAppSelector } from '../../../hooks/reduxHooks';
 import { useContestWebSocket } from '../../../hooks/useContestWebSocket';
+import { useEnsureInitials } from '../../../hooks/useEnsureInitials';
 import { useToast } from '../../../hooks/useToast';
 import { Helmet } from 'react-helmet-async';
 
@@ -37,7 +37,7 @@ export default function ContestPage() {
 
   const currentContest = useAppSelector(selectCurrentContest);
   const squareErrorCode = useAppSelector(selectSquareErrorCode);
-  const defaultInitials = useAppSelector(selectDefaultInitials);
+  const ensureInitials = useEnsureInitials();
 
   const [randomSquareLoading, setRandomSquareLoading] = useState(false);
   const [clearMySquaresLoading, setClearMySquaresLoading] = useState(false);
@@ -132,8 +132,10 @@ export default function ContestPage() {
 
     const randomSquare = emptySquares[Math.floor(Math.random() * emptySquares.length)];
 
-    // claim uses the profile default initials, so require them to be set first
-    if (!defaultInitials) {
+    // claim uses the profile default initials; confirm against the backend (the store can be
+    // stale) before requiring them
+    const initials = await ensureInitials();
+    if (!initials) {
       showToast('Set your initials in your profile before claiming a square', 'warning');
       navigate('/profile');
       return;

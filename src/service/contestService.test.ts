@@ -124,12 +124,12 @@ describe('contestService', () => {
 
   it('should claim a square', async () => {
     const mockSquare = { id: 'sq-1', value: 'AB', row: 0, col: 0 };
-    vi.mocked(api.patch).mockResolvedValue({ data: mockSquare });
+    vi.mocked(api.post).mockResolvedValue({ data: mockSquare });
 
     const result = await claimSquareById('c1', 'sq-1');
 
     expect(result).toEqual(mockSquare);
-    expect(api.patch).toHaveBeenCalledWith('/contests/c1/squares/sq-1');
+    expect(api.post).toHaveBeenCalledWith('/contests/c1/squares/sq-1/claim');
   });
 
   it('should clear a square', async () => {

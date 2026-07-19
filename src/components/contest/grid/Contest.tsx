@@ -8,8 +8,8 @@ import {
 } from '../../../features/contests/contestSelectors';
 import { setCurrentSquare } from '../../../features/contests/contestSlice';
 import { claimSquare } from '../../../features/contests/contestThunks';
-import { selectDefaultInitials } from '../../../features/user/userSelectors';
 import { useAppDispatch, useAppSelector } from '../../../hooks/reduxHooks';
+import { useEnsureInitials } from '../../../hooks/useEnsureInitials';
 import { useToast } from '../../../hooks/useToast';
 import EditSquare from './EditSquare';
 import Square from './Square';
@@ -24,7 +24,7 @@ export default function Contest({ newWinnerSquare }: ContestProps) {
   const navigate = useNavigate();
   const currentContest = useAppSelector(selectCurrentContest);
   const participants = useAppSelector(selectParticipants);
-  const defaultInitials = useAppSelector(selectDefaultInitials);
+  const ensureInitials = useEnsureInitials();
   const { showToast } = useToast();
   const [openEditSquare, setOpenEditSquare] = useState(false);
 
@@ -99,8 +99,9 @@ export default function Contest({ newWinnerSquare }: ContestProps) {
         return;
       }
 
-      // require default initials to be set before claiming square
-      if (!defaultInitials) {
+      // confirm initials against the backend (the store can be stale) before claiming
+      const initials = await ensureInitials();
+      if (!initials) {
         showToast('Set your initials in your profile before claiming a square', 'warning');
         navigate('/profile');
         return;
