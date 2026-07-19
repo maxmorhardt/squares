@@ -73,8 +73,6 @@ export default function ProfilePage() {
   const profileRetried = useRef(false);
   const statsRetried = useRef(false);
 
-  // wait for the bearer interceptor before fetching, or the first request goes out unauthenticated.
-  // profile and stats load app-wide; retry once here if that load hadn't landed or errored
   useEffect(() => {
     if (!auth.isAuthenticated || !axiosReady) {
       return;
