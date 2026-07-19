@@ -1,5 +1,5 @@
 import type { SvgIconComponent } from '@mui/icons-material';
-import { Box, Button, Container, keyframes, Typography } from '@mui/material';
+import { alpha, Box, Button, Container, keyframes, Typography } from '@mui/material';
 import type { ReactNode } from 'react';
 
 const rise = keyframes`
@@ -8,6 +8,16 @@ const rise = keyframes`
 `;
 
 const HINT_TILE_SIZE = 34;
+const DEFAULT_ACCENT = '#ff6b6b';
+
+// alpha() throws on values it cannot parse (gradients, theme paths like primary.main)
+function accentAlpha(accent: string, opacity: number) {
+  try {
+    return alpha(accent, opacity);
+  } catch {
+    return alpha(DEFAULT_ACCENT, opacity);
+  }
+}
 
 export interface ErrorStateAction {
   label: string;
@@ -37,7 +47,7 @@ export default function ErrorState({
   label,
   title,
   description,
-  accent = '#ff6b6b',
+  accent = DEFAULT_ACCENT,
   actions,
   hints,
   children,
@@ -170,8 +180,8 @@ export default function ErrorState({
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center',
-                      background: `${accent}14`,
-                      border: `1px solid ${accent}33`,
+                      background: accentAlpha(accent, 0.08),
+                      border: `1px solid ${accentAlpha(accent, 0.2)}`,
                     }}
                   >
                     <hint.icon sx={{ fontSize: 18, color: accent, display: 'block' }} />
