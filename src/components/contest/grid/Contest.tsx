@@ -100,7 +100,13 @@ export default function Contest({ newWinnerSquare }: ContestProps) {
       }
 
       // confirm initials against the backend (the store can be stale) before claiming
-      const initials = await ensureInitials();
+      let initials: string;
+      try {
+        initials = await ensureInitials();
+      } catch {
+        showToast('Could not verify your initials, please try again', 'error');
+        return;
+      }
       if (!initials) {
         showToast('Set your initials in your profile before claiming a square', 'warning');
         navigate('/profile');
