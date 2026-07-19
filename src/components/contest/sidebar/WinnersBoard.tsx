@@ -23,6 +23,9 @@ import ContestSidebarCard from './ContestSidebarCard';
 
 const MAX_NAME_LENGTH = 20;
 
+// a ghosted square (owner left a private contest) wins with no owner name
+const GHOST_USER = 'ghost';
+
 interface WinnersBoardProps {
   quarterResults?: QuarterResult[];
 }
@@ -45,12 +48,13 @@ export default function WinnersBoard({ quarterResults = [] }: WinnersBoardProps)
   };
 
   const formatWinnerName = (result: QuarterResult) => {
-    if (!result.winnerName || result.winnerName.length < MAX_NAME_LENGTH) {
-      return result.winnerName || '';
+    const name = result.winner === GHOST_USER ? 'ghost' : result.winnerName;
+    if (!name || name.length < MAX_NAME_LENGTH) {
+      return name || '';
     }
 
     const truncatedNameLength = MAX_NAME_LENGTH - 3;
-    return `${result.winnerName.substring(0, truncatedNameLength)}...`;
+    return `${name.substring(0, truncatedNameLength)}...`;
   };
 
   // only the owner of a manual contest can undo the most recently recorded quarter

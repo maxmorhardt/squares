@@ -112,6 +112,11 @@ describe('WinnersBoard', () => {
     expect(screen.getByText('Alice Smith')).toBeInTheDocument();
   });
 
+  it('labels a ghosted winner as "ghost" instead of a blank name', () => {
+    renderBoard([makeResult(1, { winner: 'ghost', winnerName: '' })]);
+    expect(screen.getByText('ghost')).toBeInTheDocument();
+  });
+
   it('shows the rollback control on the latest winner for the owner of a manual contest', () => {
     setAuth('alice');
     renderBoard([makeResult(1), makeResult(2)], { status: 'Q3' });
