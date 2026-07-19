@@ -5,7 +5,7 @@ import { Provider } from 'react-redux';
 import { useAuth } from 'react-oidc-context';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { contestReducer } from '../../../features/contests/contestSlice';
-import type { QuarterResult } from '../../../types/contest';
+import type { ContestStatus, QuarterResult } from '../../../types/contest';
 import WinnersBoard from './WinnersBoard';
 
 vi.mock('react-oidc-context', () => ({ useAuth: vi.fn() }));
@@ -26,7 +26,7 @@ const baseContest = {
   name: 'Test Bowl',
   xLabels: [],
   yLabels: [],
-  status: 'Q2' as const,
+  status: 'Q2' as ContestStatus,
   visibility: 'public' as const,
   squares: [],
   owner: 'alice',
