@@ -55,6 +55,16 @@ describe('LeaderboardRankCard', () => {
     expect(container).toBeEmptyDOMElement();
   });
 
+  it('hides the action when asked', () => {
+    renderCard({
+      rank: { rank: 7, totalRanked: 143, quarterWins: 5, ranked: true },
+      showAction: false,
+    });
+
+    expect(screen.queryByRole('button', { name: /view leaderboard/i })).not.toBeInTheDocument();
+    expect(screen.getByText("You're #7 of 143")).toBeInTheDocument();
+  });
+
   it('navigates to the leaderboard', () => {
     renderCard({ rank: { rank: 7, totalRanked: 143, quarterWins: 5, ranked: true } });
 

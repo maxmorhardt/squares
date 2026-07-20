@@ -9,9 +9,11 @@ interface Props {
   rank: LeaderboardRankResponse | null;
   loading: boolean;
   error: boolean;
+  // the leaderboard page already shows the board, so it hides the link back to itself
+  showAction?: boolean;
 }
 
-export default function LeaderboardRankCard({ rank, loading, error }: Props) {
+export default function LeaderboardRankCard({ rank, loading, error, showAction = true }: Props) {
   const theme = useTheme();
   const navigate = useNavigate();
 
@@ -61,14 +63,16 @@ export default function LeaderboardRankCard({ rank, loading, error }: Props) {
         </Box>
       </Box>
 
-      <Button
-        variant="outlined"
-        startIcon={<LeaderboardIcon />}
-        onClick={() => navigate('/leaderboard')}
-        sx={{ flexShrink: 0 }}
-      >
-        View Leaderboard
-      </Button>
+      {showAction && (
+        <Button
+          variant="outlined"
+          startIcon={<LeaderboardIcon />}
+          onClick={() => navigate('/leaderboard')}
+          sx={{ flexShrink: 0 }}
+        >
+          View Leaderboard
+        </Button>
+      )}
     </Paper>
   );
 }

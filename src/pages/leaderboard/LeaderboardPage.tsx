@@ -51,8 +51,11 @@ export default function LeaderboardPage() {
   }, [auth.isAuthenticated, axiosReady, dispatch]);
 
   const firstLoad = loading && entries.length === 0;
-  const podium = entries.slice(0, PODIUM_SIZE);
-  const rest = entries.slice(PODIUM_SIZE);
+
+  // a podium only reads as a podium once all three places are filled; below that it is just a list
+  const hasPodium = entries.length >= PODIUM_SIZE;
+  const podium = hasPodium ? entries.slice(0, PODIUM_SIZE) : [];
+  const rest = hasPodium ? entries.slice(PODIUM_SIZE) : entries;
 
   // the API abbreviates names, so match on the same form plus the rank to disambiguate ties
   const highlightKey =
@@ -157,6 +160,7 @@ export default function LeaderboardPage() {
           rank={myRank}
           loading={myRankLoading && !myRank}
           error={Boolean(myRankError)}
+          showAction={false}
         />
       )}
 

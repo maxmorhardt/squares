@@ -93,15 +93,30 @@ describe('LeaderboardPage', () => {
     expect(mockGetLeaderboard).toHaveBeenCalled();
   });
 
-  it('does not show the empty state when the podium holds every player', async () => {
+  it('lists players without a podium when there are fewer than three', async () => {
     mockGetLeaderboard.mockResolvedValue({
-      entries: [{ rank: 1, displayName: 'Max M.', quarterWins: 12, squaresClaimed: 48 }],
+      entries: [
+        { rank: 1, displayName: 'Max M.', quarterWins: 12, squaresClaimed: 48 },
+        { rank: 2, displayName: 'Jordan K.', quarterWins: 9, squaresClaimed: 40 },
+      ],
     });
 
     renderPage();
 
+    // both appear in the table, and no empty state leaks through
     await waitFor(() => expect(screen.getByText('Max M.')).toBeInTheDocument());
+    expect(screen.getByText('Jordan K.')).toBeInTheDocument();
+    expect(screen.getByText('Win Rate')).toBeInTheDocument();
     expect(screen.queryByText('No winners yet')).not.toBeInTheDocument();
+  });
+
+  it('does not link back to itself from the rank card', async () => {
+    mockIsAuthenticated = true;
+
+    renderPage();
+
+    await waitFor(() => expect(screen.getByText("You're #7 of 143")).toBeInTheDocument());
+    expect(screen.queryByRole('button', { name: /view leaderboard/i })).not.toBeInTheDocument();
   });
 
   it('shows the empty state when nobody has won', async () => {

@@ -8,9 +8,10 @@ import { popIn } from '../profile/animations';
 export const PODIUM_SIZE = 3;
 
 const PODIUM_STYLES: Record<number, { color: string; height: number; delay: number }> = {
-  1: { color: '#ffd700', height: 188, delay: 0 },
-  2: { color: '#c0c0c0', height: 156, delay: 0.1 },
-  3: { color: '#cd7f32', height: 140, delay: 0.2 },
+  1: { color: '#ffd700', height: 196, delay: 0 },
+  // a true silver reads as plain grey against the dark surface, so it is cooled and brightened
+  2: { color: '#dbe3f5', height: 158, delay: 0.1 },
+  3: { color: '#e08c47', height: 138, delay: 0.2 },
 };
 
 // the winner sits in the middle on desktop, but stays first when the row stacks
