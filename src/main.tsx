@@ -18,6 +18,7 @@ import ErrorBoundary, { ErrorFallback } from './pages/error/ErrorBoundary';
 import NotFoundPage from './pages/error/NotFoundPage';
 import JoinPage from './pages/join/JoinPage';
 import LandingPage from './pages/landing/LandingPage';
+import LeaderboardPage from './pages/leaderboard/LeaderboardPage';
 import LearnMorePage from './pages/learn/LearnMorePage';
 import ProfilePage from './pages/profile/ProfilePage';
 
@@ -56,6 +57,7 @@ const router = createBrowserRouter([
       { index: true, element: <LandingPage /> },
       { path: 'auth/callback', element: <CallbackPage /> },
       { path: 'contests', element: <ContestsPage /> },
+      { path: 'leaderboard', element: <LeaderboardPage /> },
       { path: 'profile', element: <ProfilePage /> },
       { path: 'contests/create', element: <CreateContestPage /> },
       { path: 'contests/:id', element: <ContestPage /> },

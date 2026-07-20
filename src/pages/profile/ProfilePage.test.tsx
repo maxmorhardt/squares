@@ -29,6 +29,14 @@ type FakeUserState = {
 };
 let userState: FakeUserState;
 
+// the leaderboard rank card reads its own slice; default it to a ranked user
+type FakeLeaderboardState = {
+  myRank: { rank: number; totalRanked: number; quarterWins: number; ranked: boolean } | null;
+  myRankLoading: boolean;
+  myRankError: string | null;
+};
+let leaderboardState: FakeLeaderboardState;
+
 vi.mock('react-router-dom', async () => {
   const actual = await vi.importActual<typeof import('react-router-dom')>('react-router-dom');
   return { ...actual, useNavigate: () => mockNavigate };
@@ -39,8 +47,12 @@ vi.mock('../../hooks/useAxiosAuth', () => ({ useAxiosAuth: () => true }));
 vi.mock('../../hooks/useToast', () => ({ useToast: () => ({ showToast: mockShowToast }) }));
 vi.mock('../../hooks/reduxHooks', () => ({
   useAppDispatch: () => mockDispatch,
-  useAppSelector: (selector: (state: { user: FakeUserState }) => unknown) =>
-    selector({ user: userState }),
+  useAppSelector: (
+    selector: (state: { user: FakeUserState; leaderboard: FakeLeaderboardState }) => unknown
+  ) => selector({ user: userState, leaderboard: leaderboardState }),
+}));
+vi.mock('../../features/leaderboard/leaderboardThunks', () => ({
+  fetchMyRank: vi.fn(() => ({ type: 'fetchMyRank' })),
 }));
 vi.mock('../../features/contests/contestThunks', () => ({
   deleteContest: vi.fn((id: string) => ({ type: 'deleteContest', id })),
@@ -95,6 +107,11 @@ describe('ProfilePage', () => {
       error: null,
       stats: mockStats,
       statsError: false,
+    };
+    leaderboardState = {
+      myRank: { rank: 7, totalRanked: 143, quarterWins: 5, ranked: true },
+      myRankLoading: false,
+      myRankError: null,
     };
     vi.mocked(useAuth).mockReturnValue({
       isAuthenticated: true,
