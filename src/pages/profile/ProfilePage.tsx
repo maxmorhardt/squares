@@ -218,9 +218,10 @@ export default function ProfilePage() {
     }
   };
 
+  // share of the quarters the user had a stake in that they actually won
   const winRate =
-    stats && stats.squaresClaimed > 0
-      ? `${((stats.quarterWins / stats.squaresClaimed) * 100).toFixed(0)}% win rate`
+    stats && stats.quartersPlayed > 0
+      ? `${((stats.quarterWins / stats.quartersPlayed) * 100).toFixed(0)}% win rate`
       : undefined;
 
   const memberSince = profile

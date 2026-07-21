@@ -3,6 +3,7 @@ export interface LeaderboardEntry {
   displayName: string;
   quarterWins: number;
   squaresClaimed: number;
+  quartersPlayed: number;
 }
 
 export interface LeaderboardResponse {

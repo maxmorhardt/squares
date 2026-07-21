@@ -7,9 +7,9 @@ import type { LeaderboardEntry } from '../../types/leaderboard';
 const theme = createTheme({ palette: { mode: 'dark' } });
 
 const entries: LeaderboardEntry[] = [
-  { rank: 1, displayName: 'Max M.', quarterWins: 12, squaresClaimed: 48 },
-  { rank: 2, displayName: 'Jordan K.', quarterWins: 9, squaresClaimed: 40 },
-  { rank: 3, displayName: 'Sam R.', quarterWins: 1, squaresClaimed: 12 },
+  { rank: 1, displayName: 'Max M.', quarterWins: 12, squaresClaimed: 48, quartersPlayed: 48 },
+  { rank: 2, displayName: 'Jordan K.', quarterWins: 9, squaresClaimed: 40, quartersPlayed: 40 },
+  { rank: 3, displayName: 'Sam R.', quarterWins: 1, squaresClaimed: 12, quartersPlayed: 12 },
 ];
 
 function renderPodium(props: Partial<React.ComponentProps<typeof LeaderboardPodium>> = {}) {
@@ -63,7 +63,9 @@ describe('LeaderboardPodium', () => {
 
   it('strips dangerous characters from display names', () => {
     renderPodium({
-      entries: [{ rank: 1, displayName: '<script>', quarterWins: 1, squaresClaimed: 1 }],
+      entries: [
+        { rank: 1, displayName: '<script>', quarterWins: 1, squaresClaimed: 1, quartersPlayed: 4 },
+      ],
     });
 
     expect(screen.queryByText('<script>')).not.toBeInTheDocument();
@@ -72,7 +74,9 @@ describe('LeaderboardPodium', () => {
 
   it('falls back to third-place styling for an unexpected rank', () => {
     renderPodium({
-      entries: [{ rank: 9, displayName: 'Riley P.', quarterWins: 2, squaresClaimed: 8 }],
+      entries: [
+        { rank: 9, displayName: 'Riley P.', quarterWins: 2, squaresClaimed: 8, quartersPlayed: 8 },
+      ],
     });
 
     expect(screen.getByText('Riley P.')).toBeInTheDocument();

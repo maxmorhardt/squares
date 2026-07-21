@@ -17,12 +17,13 @@ interface Props {
   highlightKey?: string;
 }
 
+// share of the quarters the player had a stake in that they actually won
 function winRate(entry: LeaderboardEntry) {
-  if (entry.squaresClaimed <= 0) {
+  if (entry.quartersPlayed <= 0) {
     return '–';
   }
 
-  return `${((entry.quarterWins / entry.squaresClaimed) * 100).toFixed(0)}%`;
+  return `${((entry.quarterWins / entry.quartersPlayed) * 100).toFixed(0)}%`;
 }
 
 export default function LeaderboardTable({ entries, loading, highlightKey }: Props) {

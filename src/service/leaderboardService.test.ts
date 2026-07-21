@@ -6,7 +6,9 @@ import type { LeaderboardRankResponse, LeaderboardResponse } from '../types/lead
 vi.mock('../axios/api');
 
 const mockLeaderboard: LeaderboardResponse = {
-  entries: [{ rank: 1, displayName: 'Max', quarterWins: 12, squaresClaimed: 48 }],
+  entries: [
+    { rank: 1, displayName: 'Max', quarterWins: 12, squaresClaimed: 48, quartersPlayed: 48 },
+  ],
 };
 
 describe('leaderboardService', () => {

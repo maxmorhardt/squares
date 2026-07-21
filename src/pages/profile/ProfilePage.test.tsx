@@ -17,7 +17,13 @@ const mockProfile = {
   defaultInitials: 'MM',
   createdAt: '2026-07-11T00:00:00Z',
 };
-const mockStats = { contestsCreated: 3, contestsJoined: 7, squaresClaimed: 42, quarterWins: 5 };
+const mockStats = {
+  contestsCreated: 3,
+  contestsJoined: 7,
+  squaresClaimed: 42,
+  quarterWins: 5,
+  quartersPlayed: 20,
+};
 
 // the profile and stats live in the redux user slice; tests drive them through this fake state
 type FakeUserState = {
@@ -135,7 +141,9 @@ describe('ProfilePage', () => {
     expect(screen.getByText('7')).toBeInTheDocument();
     expect(screen.getByText('42')).toBeInTheDocument();
     expect(screen.getByText('5')).toBeInTheDocument();
-    expect(screen.getByText(/12% win rate/i)).toBeInTheDocument();
+    // 5 of 20 quarters played; the old squares-based rate would have shown 12%
+    expect(screen.getByText(/25% win rate/i)).toBeInTheDocument();
+    expect(screen.queryByText(/12% win rate/i)).not.toBeInTheDocument();
   });
 
   it('shows a top-of-page error and disables account deletion when loading fails', async () => {

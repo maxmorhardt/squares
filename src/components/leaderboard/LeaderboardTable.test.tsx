@@ -8,9 +8,10 @@ const theme = createTheme({ palette: { mode: 'dark' } });
 
 // the podium owns ranks 1-3, so the table starts at 4
 const entries: LeaderboardEntry[] = [
-  { rank: 4, displayName: 'Max M.', quarterWins: 12, squaresClaimed: 48 },
-  { rank: 5, displayName: 'Jordan K.', quarterWins: 9, squaresClaimed: 40 },
-  { rank: 6, displayName: 'Sam R.', quarterWins: 7, squaresClaimed: 0 },
+  { rank: 4, displayName: 'Max M.', quarterWins: 12, squaresClaimed: 48, quartersPlayed: 48 },
+  { rank: 5, displayName: 'Jordan K.', quarterWins: 9, squaresClaimed: 40, quartersPlayed: 30 },
+  // played nothing, so there is no rate to show. values stay distinct from every rank on screen
+  { rank: 6, displayName: 'Sam R.', quarterWins: 0, squaresClaimed: 11, quartersPlayed: 0 },
 ];
 
 function renderTable(props: Partial<React.ComponentProps<typeof LeaderboardTable>> = {}) {
@@ -44,13 +45,16 @@ describe('LeaderboardTable', () => {
     expect(screen.getByText('48')).toBeInTheDocument();
   });
 
-  it('computes a win rate', () => {
+  it('computes the win rate from quarters played, not squares claimed', () => {
     renderTable();
 
     expect(screen.getByText('25%')).toBeInTheDocument();
+    // 9 of 30 quarters played is 30%; the old squares-based rate would have shown 23%
+    expect(screen.getByText('30%')).toBeInTheDocument();
+    expect(screen.queryByText('23%')).not.toBeInTheDocument();
   });
 
-  it('shows a dash when the player has no squares', () => {
+  it('shows a dash when the player has played no quarters', () => {
     renderTable();
 
     expect(screen.getByText('–')).toBeInTheDocument();
@@ -58,7 +62,15 @@ describe('LeaderboardTable', () => {
 
   it('strips dangerous characters from display names', () => {
     renderTable({
-      entries: [{ rank: 1, displayName: '<script>x</script>', quarterWins: 1, squaresClaimed: 1 }],
+      entries: [
+        {
+          rank: 1,
+          displayName: '<script>x</script>',
+          quarterWins: 1,
+          squaresClaimed: 1,
+          quartersPlayed: 4,
+        },
+      ],
     });
 
     expect(screen.queryByText('<script>x</script>')).not.toBeInTheDocument();

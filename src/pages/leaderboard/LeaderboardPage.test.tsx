@@ -68,10 +68,10 @@ beforeEach(() => {
   mockIsAuthenticated = false;
   mockGetLeaderboard.mockResolvedValue({
     entries: [
-      { rank: 1, displayName: 'Max M.', quarterWins: 12, squaresClaimed: 48 },
-      { rank: 2, displayName: 'Jordan K.', quarterWins: 9, squaresClaimed: 40 },
-      { rank: 3, displayName: 'Sam R.', quarterWins: 7, squaresClaimed: 30 },
-      { rank: 4, displayName: 'Riley P.', quarterWins: 5, squaresClaimed: 25 },
+      { rank: 1, displayName: 'Max M.', quarterWins: 12, squaresClaimed: 48, quartersPlayed: 48 },
+      { rank: 2, displayName: 'Jordan K.', quarterWins: 9, squaresClaimed: 40, quartersPlayed: 40 },
+      { rank: 3, displayName: 'Sam R.', quarterWins: 7, squaresClaimed: 30, quartersPlayed: 30 },
+      { rank: 4, displayName: 'Riley P.', quarterWins: 5, squaresClaimed: 25, quartersPlayed: 25 },
     ],
   });
   mockGetMyRank.mockResolvedValue({ rank: 7, totalRanked: 143, quarterWins: 5, ranked: true });
@@ -96,8 +96,14 @@ describe('LeaderboardPage', () => {
   it('lists players without a podium when there are fewer than three', async () => {
     mockGetLeaderboard.mockResolvedValue({
       entries: [
-        { rank: 1, displayName: 'Max M.', quarterWins: 12, squaresClaimed: 48 },
-        { rank: 2, displayName: 'Jordan K.', quarterWins: 9, squaresClaimed: 40 },
+        { rank: 1, displayName: 'Max M.', quarterWins: 12, squaresClaimed: 48, quartersPlayed: 48 },
+        {
+          rank: 2,
+          displayName: 'Jordan K.',
+          quarterWins: 9,
+          squaresClaimed: 40,
+          quartersPlayed: 40,
+        },
       ],
     });
 

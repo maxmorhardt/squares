@@ -4,8 +4,8 @@ import { fetchLeaderboard, fetchMyRank } from './leaderboardThunks';
 import type { LeaderboardEntry } from '../../types/leaderboard';
 
 const entries: LeaderboardEntry[] = [
-  { rank: 1, displayName: 'Max', quarterWins: 12, squaresClaimed: 48 },
-  { rank: 2, displayName: 'Jordan', quarterWins: 9, squaresClaimed: 40 },
+  { rank: 1, displayName: 'Max', quarterWins: 12, squaresClaimed: 48, quartersPlayed: 48 },
+  { rank: 2, displayName: 'Jordan', quarterWins: 9, squaresClaimed: 40, quartersPlayed: 40 },
 ];
 
 describe('leaderboardSlice', () => {

@@ -19,7 +19,9 @@ beforeEach(() => vi.clearAllMocks());
 describe('leaderboardThunks', () => {
   describe('fetchLeaderboard', () => {
     it('fulfilled: sets entries in store', async () => {
-      const entries = [{ rank: 1, displayName: 'Max', quarterWins: 12, squaresClaimed: 48 }];
+      const entries = [
+        { rank: 1, displayName: 'Max', quarterWins: 12, squaresClaimed: 48, quartersPlayed: 48 },
+      ];
       vi.mocked(getLeaderboard).mockResolvedValue({ entries });
 
       const store = createTestStore();
