@@ -1,5 +1,5 @@
 allowBuilds:
-  esbuild: set this to true or false
+  esbuild: true
 minimumReleaseAge: 1440
 minimumReleaseAgeExclude:
   # Renovate security update: pnpm@11.8.0
