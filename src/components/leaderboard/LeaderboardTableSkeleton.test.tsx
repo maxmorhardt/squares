@@ -35,6 +35,9 @@ describe('LeaderboardTableSkeleton', () => {
     const opacities = rows.map((row) => Number(getComputedStyle(row).opacity));
 
     expect(opacities[0]).toBe(1);
-    expect(opacities).toEqual([...opacities].sort((a, b) => b - a));
+    opacities.slice(1).forEach((opacity, i) => {
+      expect(opacity).toBeLessThan(opacities[i]);
+    });
+    expect(opacities[opacities.length - 1]).toBeGreaterThan(0);
   });
 });
