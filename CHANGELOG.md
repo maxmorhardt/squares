@@ -1,5 +1,19 @@
 # Changelog
 
+## [2.1.1](https://github.com/maxmorhardt/squares/compare/2.1.0...2.1.1) (2026-09-20)
+
+
+### Bug Fixes
+
+* **deps:** update all non-major dependencies ([#77](https://github.com/maxmorhardt/squares/issues/77)) ([227bda8](https://github.com/maxmorhardt/squares/commit/227bda80f62363189ee9d97121f686eba55df78c))
+
+## [2.1.0](https://github.com/maxmorhardt/squares/compare/2.0.5...2.1.0) (2026-09-13)
+
+
+### Features
+
+* multi-square random claim controls ([#80](https://github.com/maxmorhardt/squares/issues/80)) ([d54206a](https://github.com/maxmorhardt/squares/commit/d54206a1af933a2cfd31b77f830771050b266cf1))
+
 ## [2.0.5](https://github.com/maxmorhardt/squares/compare/2.0.4...2.0.5) (2026-09-02)
 
 
